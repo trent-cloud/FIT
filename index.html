@@ -83,9 +83,32 @@ input[type=text]:focus,input[type=email]:focus,input[type=number]:focus,input[ty
 
 /* TABLE */
 .table-wrap{border:0.5px solid #EBE1C9;border-radius:12px;overflow:auto;background:#fff;max-height:65vh}
-table{width:100%;border-collapse:collapse;table-layout:auto;min-width:1600px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:1800px}
 th{background:#F6F4F1;font-size:10px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;text-align:left;border-bottom:0.5px solid #EBE1C9;position:sticky;top:0;white-space:nowrap}
-td{padding:8px 10px;border-bottom:0.5px solid #EBE1C9;vertical-align:middle;white-space:nowrap}
+th:nth-child(1){width:160px;min-width:160px} /* Company */
+th:nth-child(2){width:130px;min-width:100px} /* Website */
+th:nth-child(3){width:120px;min-width:100px} /* Sector */
+th:nth-child(4){width:55px}  /* Tier */
+th:nth-child(5){width:55px}  /* Fit */
+th:nth-child(6){width:65px}  /* Urgency */
+th:nth-child(7){width:55px}  /* Value */
+th:nth-child(8){width:70px}  /* Priority */
+th:nth-child(9){width:120px} /* Stage */
+th:nth-child(10){width:130px} /* Provider */
+th:nth-child(11){width:90px}  /* Tech */
+th:nth-child(12){width:70px}  /* Location */
+th:nth-child(13){width:90px}  /* Rev Band */
+th:nth-child(14){width:90px}  /* Orders */
+th:nth-child(15){width:70px}  /* Owner */
+th:nth-child(16){width:100px} /* First Contact */
+th:nth-child(17){width:100px} /* Last Contact */
+th:nth-child(18){width:80px}  /* Channel */
+th:nth-child(19){width:110px} /* Response */
+th:nth-child(20){width:100px} /* Next Action */
+th:nth-child(21){width:130px} /* Growth Signals */
+th:nth-child(22){width:130px} /* Notes */
+th:nth-child(23){width:30px}  /* Delete */
+td{padding:8px 10px;border-bottom:0.5px solid #EBE1C9;vertical-align:middle;white-space:nowrap;overflow:hidden}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#F6F4F1}
 
@@ -392,7 +415,7 @@ const CHANNELS=['Email','LinkedIn','Phone','Introduction','Event','Other'];
 const RESPONSE_STATUSES=['No response','Opened','Replied','Not interested','Positive','Meeting booked'];
 const OWNERS=['Richard','Trent'];
 
-const UK_3PLS=['Unknown','Huboo','J&J Global Fulfilment','Prolog','James and James','Fulfilment by Amazon (FBA)','Clipper Logistics','XPO Logistics','Wincanton','DHL Supply Chain','Kuehne+Nagel','CEVA Logistics','GXO Logistics','Yusen Logistics','Rhenus Logistics','Unipart Logistics','iForce','Byrd','Zendbox','Efulfilment UK','Whiplash','ShipBob','Mintsoft','Hive','Torque Logistics','NFT Transport','In-house / self-fulfilled','Other'];
+const UK_3PLS=['Unknown','TSP Fulfilment','Huboo','J&J Global Fulfilment','Prolog','James and James','Fulfilment by Amazon (FBA)','Clipper Logistics','XPO Logistics','Wincanton','DHL Supply Chain','Kuehne+Nagel','CEVA Logistics','GXO Logistics','Yusen Logistics','Rhenus Logistics','Unipart Logistics','iForce','Byrd','Zendbox','Efulfilment UK','Whiplash','ShipBob','Mintsoft','Hive','Torque Logistics','NFT Transport','In-house / self-fulfilled','Other'];
 
 const TECH_STACKS=['Unknown','Shopify','Shopify Plus','WooCommerce','Magento','BigCommerce','Wix','Squarespace','Custom','Other'];
 
@@ -923,7 +946,7 @@ function renderTable(rows,title,showControls){
       const fit=calcFitScore(l),urg=calcUrgencyScore(l),val=calcValueScore(l),pri=calcPriorityScore(l);
       const staleFlag=isStale(l)?'<span class="stale-flag">stale</span>':'';
       html+=`<tr>
-        <td><input class="ii" value="${(l.company||l.name||'').replace(/"/g,'&quot;')}" placeholder="Company" onchange="updateField('${l.id}','company',this.value)"></td>
+        <td><input class="ii" style="font-weight:600;font-size:13px;width:100%" value="${(l.company||l.name||'').replace(/"/g,'&quot;')}" placeholder="Company" onchange="updateField('${l.id}','company',this.value)"></td>
         <td><input class="ii ii-muted" style="font-size:11px" value="${(l.website||'').replace(/"/g,'&quot;')}" placeholder="website.com" onchange="updateField('${l.id}','website',this.value)"></td>
         <td><input class="ii ii-muted" style="font-size:11px" value="${(l.sector||'').replace(/"/g,'&quot;')}" placeholder="Sector" onchange="updateField('${l.id}','sector',this.value)"></td>
         <td><span class="badge badge-${tier.toLowerCase()}">${tier}</span></td>
