@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIT — Fulfilment Intelligence Transfer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#F6F4F1;min-height:100vh}
+
+/* LOGO */
+.fit-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:0}
+.fit-logo-wrap-inline{display:flex;flex-direction:row;align-items:center;gap:0}
+.fit-logo-canvas{display:block}
+.fit-subtitle{font-weight:300;color:#AEC3C4;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.fit-logo-lg .fit-subtitle{font-size:10px;margin-top:10px}
+.fit-logo-sm .fit-subtitle{font-size:8px;margin-top:4px}
+
+/* LOCK */
+#lock-screen{position:fixed;inset:0;background:#F6F4F1;display:flex;align-items:center;justify-content:center;z-index:999}
+.lock-card{background:#fff;border:0.5px solid #EBE1C9;border-radius:20px;padding:3rem 2.25rem 2.25rem;width:380px;text-align:center;box-shadow:0 4px 40px rgba(10,37,56,.08)}
+.lock-card .fit-logo-wrap{margin-bottom:2rem;align-items:center;width:100%}
+.lock-card .fit-logo-canvas{margin:0 auto;display:block}
+.lock-card p{font-size:13px;color:#AEC3C4;margin-bottom:1.25rem}
+.lock-card input{width:100%;padding:11px 14px;border:0.5px solid #EBE1C9;border-radius:9px;font-size:15px;text-align:center;letter-spacing:.2em;margin-bottom:10px;outline:none;font-family:inherit;background:#F6F4F1;color:#0A2538}
+.lock-card input:focus{border-color:#0A2538;background:#fff}
+.lock-card button{width:100%;padding:11px;background:#0A2538;color:#fff;border:none;border-radius:9px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:500;letter-spacing:.03em;transition:background .2s}
+.lock-card button:hover{background:#841B2D}
+.lock-error{font-size:12px;color:#841B2D;margin-top:8px;min-height:16px}
+
+/* APP */
+#app-screen{display:none;min-height:100vh}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:0.5px solid #EBE1C9;background:#fff;position:sticky;top:0;z-index:50}
+.lock-out{font-size:12px;color:#AEC3C4;cursor:pointer;background:none;border:none;font-family:inherit;transition:color .15s}
+.lock-out:hover{color:#0A2538}
+.app-body{padding:1.5rem;max-width:1400px;margin:0 auto}
+
+/* NAV TABS */
+.nav-tabs{display:flex;gap:2px;margin-bottom:1.5rem;background:#EBE1C9;border-radius:10px;padding:3px}
+.nav-tab{flex:1;padding:7px 12px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-size:12px;font-family:inherit;color:#AEC3C4;font-weight:500;transition:all .15s;text-align:center}
+.nav-tab.active{background:#fff;color:#0A2538;box-shadow:0 1px 4px rgba(10,37,56,.1)}
+.nav-tab:hover:not(.active){color:#0A2538}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.dash-card{background:#fff;border:0.5px solid #EBE1C9;border-radius:12px;padding:1rem 1.25rem}
+.dash-label{font-size:10px;color:#AEC3C4;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.dash-value{font-size:28px;font-weight:500;letter-spacing:-.5px;color:#0A2538}
+.dash-sub{font-size:11px;color:#AEC3C4;margin-top:3px}
+.tier-a{color:#27500A}.tier-b{color:#633806}.tier-c{color:#AEC3C4}
+.tier-a-bg{background:#EAF3DE;color:#27500A}
+.tier-b-bg{background:#FAEEDA;color:#633806}
+.tier-c-bg{background:#F6F4F1;color:#AEC3C4}
+
+.top20-wrap{background:#fff;border:0.5px solid #EBE1C9;border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.top20-header{padding:.85rem 1.25rem;border-bottom:0.5px solid #EBE1C9;font-size:12px;font-weight:600;color:#0A2538;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between}
+.top20-header span{font-size:11px;color:#AEC3C4;font-weight:400;text-transform:none;letter-spacing:0}
+
+.pipeline-wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.5rem}
+.pipe-col{background:#fff;border:0.5px solid #EBE1C9;border-radius:10px;padding:.85rem}
+.pipe-col-label{font-size:10px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.pipe-col-count{font-size:22px;font-weight:500;color:#0A2538}
+.pipe-col-val{font-size:11px;color:#AEC3C4;margin-top:2px}
+
+/* CONTROLS */
+.controls{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+input[type=text],input[type=email],input[type=number],input[type=date],select,textarea{font-family:inherit;font-size:13px;color:#0A2538;background:#fff;border:0.5px solid #EBE1C9;border-radius:8px;padding:6px 10px;outline:none;transition:border-color .15s}
+input[type=text]:focus,input[type=email]:focus,input[type=number]:focus,input[type=date]:focus,select:focus,textarea:focus{border-color:#0A2538}
+.search-input{min-width:220px;flex:1;max-width:320px}
+.filter-sel{max-width:160px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:0.5px solid #EBE1C9;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;color:#0A2538;transition:background .15s;white-space:nowrap}
+.btn:hover{background:#F6F4F1}
+.btn-primary{background:#0A2538;color:#fff;border-color:transparent;font-weight:500}
+.btn-primary:hover{background:#841B2D}
+.btn-danger{color:#841B2D;border-color:#EBE1C9}
+.btn-danger:hover{background:#FCEBEB}
+.btn-sm{padding:4px 8px;font-size:11px}
+
+/* TABLE */
+.table-wrap{border:0.5px solid #EBE1C9;border-radius:12px;overflow:auto;background:#fff;max-height:65vh}
+table{width:100%;border-collapse:collapse;table-layout:auto;min-width:1600px}
+th{background:#F6F4F1;font-size:10px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;text-align:left;border-bottom:0.5px solid #EBE1C9;position:sticky;top:0;white-space:nowrap}
+td{padding:8px 10px;border-bottom:0.5px solid #EBE1C9;vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F6F4F1}
+
+/* INLINE INPUTS */
+.ii{border:none;background:transparent;font-size:12px;color:#0A2538;font-family:inherit;outline:none;padding:0;width:100%;min-width:60px}
+.ii:hover{background:rgba(10,37,56,.04);border-radius:3px}
+.ii:focus{background:rgba(10,37,56,.07);border-radius:3px}
+.ii-muted{color:#AEC3C4}
+.ii-sel{border:none;background:transparent;font-size:11px;font-family:inherit;outline:none;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none;color:inherit;max-width:120px}
+.ii-date{border:none;background:transparent;font-size:11px;font-family:inherit;outline:none;padding:0;cursor:pointer;color:inherit;width:100px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.badge-a{background:#EAF3DE;color:#27500A}
+.badge-b{background:#FAEEDA;color:#633806}
+.badge-c{background:#F6F4F1;color:#AEC3C4;border:0.5px solid #EBE1C9}
+.badge-stage{font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px}
+.bs-identified{background:#E6F1FB;color:#0C447C}
+.bs-researched{background:#EBE1C9;color:#0A2538}
+.bs-contacted{background:#FAEEDA;color:#633806}
+.bs-conversation{background:#EEEDFE;color:#3C3489}
+.bs-proposal{background:#F34723;color:#fff}
+.bs-won{background:#EAF3DE;color:#27500A}
+.bs-lost{background:#FCEBEB;color:#791F1F}
+
+.score-pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;min-width:24px;text-align:center}
+.score-high{background:#EAF3DE;color:#27500A}
+.score-mid{background:#FAEEDA;color:#633806}
+.score-low{background:#FCEBEB;color:#791F1F}
+.score-na{background:#F6F4F1;color:#AEC3C4}
+
+/* UPLOAD */
+.upload-area{border:1px dashed #EBE1C9;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1.25rem;background:#fff;transition:background .15s}
+.upload-area:hover{background:#F6F4F1}
+.upload-area p{color:#AEC3C4;font-size:13px;margin-top:.5rem}
+.upload-area p.small{font-size:11px;margin-top:4px;color:#EBE1C9}
+#csv-input{display:none}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(10,37,56,.25);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:700px;max-width:95vw;max-height:90vh;overflow-y:auto;border:0.5px solid #EBE1C9}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:1.25rem;color:#0A2538}
+.modal-section{font-size:10px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.07em;margin:1rem 0 .5rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.form-row{margin-bottom:.75rem}
+.form-row label{display:block;font-size:10px;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600}
+.form-row input,.form-row select,.form-row textarea{width:100%}
+.form-row textarea{height:60px;resize:vertical;font-size:13px}
+.form-row.full{grid-column:1/-1}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem}
+
+.app-footer{text-align:center;padding:1.5rem;font-size:11px;color:#EBE1C9;letter-spacing:.05em}
+.stale-flag{color:#841B2D;font-size:10px;margin-left:4px}
+.empty{text-align:center;padding:3rem 1rem;color:#AEC3C4;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="fit-logo-wrap fit-logo-lg">
+      <canvas class="fit-logo-canvas" id="logo-lock" width="320" height="110"></canvas>
+      <div class="fit-subtitle">Fulfilment Intelligence Transfer</div>
+    </div>
+    <p>Enter your password to continue</p>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()">Unlock FIT</button>
+    <div class="lock-error" id="pw-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="app-header">
+    <div class="fit-logo-wrap fit-logo-sm">
+      <canvas class="fit-logo-canvas" id="logo-app" width="140" height="36"></canvas>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="lead-count" style="font-size:12px;color:#AEC3C4"></span>
+      <button class="lock-out" onclick="lockApp()">Lock</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="setTab('dashboard')">Dashboard</button>
+      <button class="nav-tab" onclick="setTab('targets')">All Targets</button>
+      <button class="nav-tab" onclick="setTab('pipeline')">Pipeline</button>
+      <button class="nav-tab" onclick="setTab('tier-a')">Tier A</button>
+      <button class="nav-tab" onclick="setTab('outreach')">Outreach</button>
+    </div>
+    <div id="tab-content"></div>
+  </div>
+  <div class="app-footer">FIT · Fulfilment Intelligence Transfer · Private</div>
+</div>
+
+<script>
+// ── PASSWORD ──────────────────────────────────────────
+const PASSWORD='falcon-ridge';
+
+function checkPw(){
+  const val=document.getElementById('pw-input').value;
+  if(val===PASSWORD){
+    sessionStorage.setItem('crm_auth','1');
+    document.getElementById('lock-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    startLogo('app',140,36,false);
+    renderTab();
+  } else {
+    document.getElementById('pw-error').textContent='Incorrect password — try again';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function lockApp(){
+  sessionStorage.removeItem('crm_auth');
+  document.getElementById('lock-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('pw-input').value='';
+  document.getElementById('pw-error').textContent='';
+}
+
+if(sessionStorage.getItem('crm_auth')==='1'){
+  document.getElementById('lock-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+}
+
+// ── LOGO — THE SIGNAL ────────────────────────────────
+const logoRafs={};
+const logoStartTimes={};
+
+function easeInOut(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+
+function accentColour(elapsed){
+  const stops=[[0,'#F34723'],[0.45,'#841B2D'],[0.8,'#F34723'],[1,'#F34723']];
+  const pos=(elapsed%4000)/4000;
+  for(let i=0;i<stops.length-1;i++){
+    const[t0,c0]=stops[i],[t1,c1]=stops[i+1];
+    if(pos>=t0&&pos<t1){
+      const tt=(pos-t0)/(t1-t0);
+      const r0=parseInt(c0.slice(1,3),16),g0=parseInt(c0.slice(3,5),16),b0=parseInt(c0.slice(5,7),16);
+      const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
+      return'rgb('+Math.round(r0+(r1-r0)*tt)+','+Math.round(g0+(g1-g0)*tt)+','+Math.round(b0+(b1-b0)*tt)+')';
+    }
+  }
+  return'#F34723';
+}
+
+function drawLogo(id,W,H,isLarge,ts){
+  try{
+    const canvas=document.getElementById('logo-'+id);
+    if(!canvas)return;
+
+    if(!logoStartTimes[id])logoStartTimes[id]=ts;
+    const elapsed=ts-logoStartTimes[id];
+
+    // HiDPI retina fix
+    const dpr=window.devicePixelRatio||1;
+    const pw=Math.round(W*dpr);
+    const ph=Math.round(H*dpr);
+    if(canvas.width!==pw||canvas.height!==ph){
+      canvas.width=pw;
+      canvas.height=ph;
+      canvas.style.width=W+'px';
+      canvas.style.height=H+'px';
+    }
+
+    const ctx=canvas.getContext('2d');
+    ctx.save();
+    ctx.scale(dpr,dpr);
+    ctx.clearRect(0,0,W,H);
+
+    // ── 3 SIGNAL BARS ──
+    // Bars span the full height of the 3-word text block
+    const textBlockH=H*0.574; // 30% smaller than before
+    const totalBarsH=textBlockH;
+    const barGapCount=2;
+    const barH=Math.round(totalBarsH/7); // bar is ~1/7 of total, gaps fill rest
+    const barGap=Math.round((totalBarsH-3*barH)/barGapCount);
+    const maxBarW=Math.round(H*(isLarge?0.32:0.38));
+    // Measure wordmark width to calculate total composition width for centering
+    const fontPxTemp=Math.round(H*(isLarge?0.68:0.74));
+    ctx.font='900 '+fontPxTemp+'px Barlow, sans-serif';
+    const fitW=ctx.measureText('FIT').width;
+    const iconWordGap=Math.round(H*(isLarge?0.09:0.11));
+    const compositionW=maxBarW+iconWordGap+fitW;
+    const iconX=Math.round((W-compositionW)/2);
+    const iconY=Math.round((H-totalBarsH)/2);
+
+    const bars=[
+      {maxW:1.0, period:3200, phase:0,    accent:false},
+      {maxW:0.62,period:2600, phase:0.33, accent:true },
+      {maxW:0.38,period:4100, phase:0.67, accent:false},
+    ];
+
+    bars.forEach(function(bar,i){
+      const t=((elapsed/bar.period)+bar.phase)%1;
+      const breath=easeInOut(Math.abs(Math.sin(t*Math.PI)));
+      const minW=bar.maxW*0.35;
+      const animW=Math.round(maxBarW*(minW+(bar.maxW-minW)*breath));
+      const y=iconY+i*(barH+barGap);
+      if(bar.accent){
+        const col=accentColour(elapsed);
+        ctx.save();
+        ctx.shadowColor=col;
+        ctx.shadowBlur=isLarge?10:5;
+        ctx.fillStyle=col;
+        ctx.fillRect(iconX,y,animW,barH);
+        ctx.restore();
+      } else {
+        const alpha=0.25+breath*0.65;
+        ctx.fillStyle='rgba(10,37,56,'+alpha.toFixed(2)+')';
+        ctx.fillRect(iconX,y,animW,barH);
+      }
+    });
+
+    // ── WORDMARK ──
+    const wordX=iconX+maxBarW+Math.round(H*(isLarge?0.09:0.11));
+    const IDLE=5000,FADE_OUT=2000,HOLD=4000,FADE_IN=2000;
+    const CYCLE=IDLE+FADE_OUT+HOLD+FADE_IN;
+    const wt=elapsed%CYCLE;
+    let fitAlpha=1,expAlpha=0;
+    if(wt<IDLE){
+      fitAlpha=1;expAlpha=0;
+    } else if(wt<IDLE+FADE_OUT){
+      const p=(wt-IDLE)/FADE_OUT;
+      fitAlpha=1-easeInOut(p);expAlpha=0;
+    } else if(wt<IDLE+FADE_OUT+HOLD){
+      fitAlpha=0;expAlpha=1;
+    } else {
+      const p=(wt-IDLE-FADE_OUT-HOLD)/FADE_IN;
+      fitAlpha=easeInOut(p);expAlpha=1-easeInOut(p);
+    }
+
+    ctx.fillStyle='#0A2538';
+
+    // ── FIT wordmark ──
+    if(fitAlpha>0.01){
+      const fontPx=Math.round(H*(isLarge?0.68:0.74));
+      ctx.font='900 '+fontPx+'px Barlow, sans-serif';
+      ctx.textBaseline='middle';
+      ctx.globalAlpha=Math.min(1,fitAlpha);
+      ctx.fillText('FIT',wordX,H/2);
+      ctx.globalAlpha=1;
+    }
+
+    // ── Expanded wordmark (large logo only) ──
+    if(expAlpha>0.01&&isLarge){
+      const words=['Fulfilment','Intelligence','Transfer'];
+      const lh=Math.round(H*0.27);
+      const fpx=Math.round(H*0.23);
+      const totalH=words.length*lh;
+      const startY=(H-totalH)/2;
+      ctx.textBaseline='top';
+      words.forEach(function(word,i){
+        // Stagger each word in, but fade them all out together
+        const sDelay=i*0.08;
+        const fadeInAlpha=Math.max(0,Math.min(1,(expAlpha-sDelay)/(1-sDelay)));
+        ctx.globalAlpha=Math.min(1,expAlpha*fadeInAlpha);
+        // Entire word in light weight — clean, editorial
+        ctx.font='300 '+fpx+'px Barlow, sans-serif';
+        ctx.fillStyle='#0A2538';
+        ctx.fillText(word,wordX,startY+i*lh);
+      });
+      ctx.globalAlpha=1;
+    }
+
+    // ── Expanded for small logo: weight change only ──
+    if(expAlpha>0.01&&!isLarge){
+      const fontPx=Math.round(H*0.74);
+      ctx.font='300 '+fontPx+'px Barlow, sans-serif';
+      ctx.textBaseline='middle';
+      ctx.globalAlpha=Math.min(1,expAlpha*0.7);
+      ctx.fillStyle='#0A2538';
+      ctx.fillText('FIT',wordX,H/2);
+      ctx.globalAlpha=1;
+    }
+
+    ctx.globalAlpha=1;
+    ctx.restore();
+  } catch(e){
+    // Fail silently — never crash the page
+  }
+  logoRafs[id]=requestAnimationFrame(function(ts){drawLogo(id,W,H,isLarge,ts);});
+}
+
+function startLogo(id,W,H,isLarge){
+  if(logoRafs[id])cancelAnimationFrame(logoRafs[id]);
+  delete logoStartTimes[id];
+  logoRafs[id]=requestAnimationFrame(function(ts){drawLogo(id,W,H,isLarge,ts);});
+}
+
+document.fonts.ready.then(function(){
+  startLogo('lock',320,110,true);
+  if(sessionStorage.getItem('crm_auth')==='1')startLogo('app',140,36,false);
+});
+
+// ── CONSTANTS ─────────────────────────────────────────
+const PIPELINE_STAGES=['Identified','Researched','Contacted','In Conversation','Proposal Sent','Won','Lost'];
+const STAGE_CLASS={Identified:'bs-identified',Researched:'bs-researched',Contacted:'bs-contacted','In Conversation':'bs-conversation','Proposal Sent':'bs-proposal',Won:'bs-won',Lost:'bs-lost'};
+const CHANNELS=['Email','LinkedIn','Phone','Introduction','Event','Other'];
+const RESPONSE_STATUSES=['No response','Opened','Replied','Not interested','Positive','Meeting booked'];
+const OWNERS=['Richard','Trent'];
+
+const UK_3PLS=['Unknown','Huboo','J&J Global Fulfilment','Prolog','James and James','Fulfilment by Amazon (FBA)','Clipper Logistics','XPO Logistics','Wincanton','DHL Supply Chain','Kuehne+Nagel','CEVA Logistics','GXO Logistics','Yusen Logistics','Rhenus Logistics','Unipart Logistics','iForce','Byrd','Zendbox','Efulfilment UK','Whiplash','ShipBob','Mintsoft','Hive','Torque Logistics','NFT Transport','In-house / self-fulfilled','Other'];
+
+const TECH_STACKS=['Unknown','Shopify','Shopify Plus','WooCommerce','Magento','BigCommerce','Wix','Squarespace','Custom','Other'];
+
+const LOCATIONS=['Unknown','UK','EU','US','Global','Other'];
+
+const REV_BANDS=['Unknown','Under £1m','£1m–£5m','£5m–£10m','£10m–£25m','£25m–£50m','£50m+'];
+
+const ORDER_BANDS=['Unknown','Under 1k/mo','1k–5k/mo','5k–10k/mo','10k–25k/mo','25k–50k/mo','50k+/mo'];
+
+// Sector scoring weights (fit for 3PL)
+const SECTOR_FIT={
+  'fashion':9,'apparel':9,'clothing':9,'footwear':9,'accessories':8,
+  'beauty':9,'skincare':9,'cosmetics':9,'health':8,'supplements':9,'wellness':8,'nutrition':8,
+  'homewares':8,'home':7,'furniture':6,'interiors':8,'garden':7,
+  'electronics':7,'technology':6,'gadgets':7,'tech accessories':8,
+  'toys':8,'games':7,'sport':8,'fitness':8,'outdoor':7,
+  'food':6,'drink':6,'fmcg':7,'grocery':5,
+  'pet':9,'pets':9,'pet food':8,
+  'baby':9,'kids':8,'children':8,
+  'books':6,'stationery':6,'gifts':8,'subscription':9,
+  'jewellery':8,'jewelry':8,'luxury':7,'watches':7,
+  'default':5
+};
+
+// ── SCORING ENGINE ────────────────────────────────────
+function sectorFitScore(sector){
+  if(!sector)return 5;
+  const s=sector.toLowerCase();
+  for(const[k,v]of Object.entries(SECTOR_FIT)){if(s.includes(k))return v;}
+  return SECTOR_FIT.default;
+}
+
+function calcFitScore(lead){
+  let score=0,count=0;
+  // Sector fit (weight 40%)
+  score+=sectorFitScore(lead.sector)*0.4;count+=0.4;
+  // Tech stack (Shopify/WooCommerce = good fit)
+  if(lead.techstack&&lead.techstack!=='Unknown'){
+    const shopify=['Shopify','Shopify Plus','WooCommerce'].includes(lead.techstack);
+    score+=(shopify?9:6)*0.2;count+=0.2;
+  }
+  // Location (UK primary)
+  if(lead.location&&lead.location!=='Unknown'){
+    const loc={UK:10,EU:7,US:6,Global:8}[lead.location]||5;
+    score+=loc*0.2;count+=0.2;
+  }
+  // Provider (unknown = opportunity; in-house = high opportunity)
+  if(lead.provider&&lead.provider!=='Unknown'){
+    const opp=lead.provider==='In-house / self-fulfilled'?10:lead.provider==='Unknown'?7:4;
+    score+=opp*0.2;count+=0.2;
+  }
+  return count>0?Math.round(score/count*10)/10:null;
+}
+
+function calcUrgencyScore(lead){
+  let score=5; // baseline
+  // Overdue next action = urgency
+  if(lead.nextaction&&new Date(lead.nextaction)<new Date())score+=2;
+  // Growth signals present
+  if(lead.growthsignals&&lead.growthsignals.trim())score+=1.5;
+  // Pain indicators
+  if(lead.painindicators&&lead.painindicators.trim())score+=2;
+  // In-house fulfilment = highest urgency
+  if(lead.provider==='In-house / self-fulfilled')score+=2;
+  // Stale (no contact in 30+ days after being contacted)
+  if(lead.lastcontact&&['Contacted','In Conversation'].includes(lead.stage)){
+    const days=(new Date()-new Date(lead.lastcontact))/(1000*60*60*24);
+    if(days>30)score+=1;
+  }
+  return Math.min(10,Math.round(score*10)/10);
+}
+
+function calcValueScore(lead){
+  const revMap={'Under £1m':2,'£1m–£5m':4,'£5m–£10m':6,'£10m–£25m':7,'£25m–£50m':9,'£50m+':10};
+  const ordMap={'Under 1k/mo':2,'1k–5k/mo':4,'5k–10k/mo':6,'10k–25k/mo':7,'25k–50k/mo':9,'50k+/mo':10};
+  const rev=revMap[lead.revband]||null;
+  const ord=ordMap[lead.orderband]||null;
+  if(rev&&ord)return Math.round(((rev+ord)/2)*10)/10;
+  if(rev)return rev;
+  if(ord)return ord;
+  // Manual value field
+  if(lead.value&&parseFloat(lead.value)>0){
+    const v=parseFloat(lead.value);
+    if(v>500000)return 10;if(v>250000)return 8;if(v>100000)return 6;if(v>50000)return 4;return 3;
+  }
+  return null;
+}
+
+function calcPriorityScore(lead){
+  const fit=calcFitScore(lead);
+  const urgency=calcUrgencyScore(lead);
+  const value=calcValueScore(lead);
+  const f=fit||5,u=urgency||5,v=value||5;
+  // Weighted: Fit 35%, Urgency 35%, Value 30%
+  return Math.round((f*0.35+u*0.35+v*0.30)*10)/10;
+}
+
+function getTier(lead){
+  const p=calcPriorityScore(lead);
+  if(p>=7)return'A';
+  if(p>=4.5)return'B';
+  return'C';
+}
+
+function scoreClass(s){
+  if(s===null||s===undefined)return'score-na';
+  if(s>=7)return'score-high';
+  if(s>=4.5)return'score-mid';
+  return'score-low';
+}
+
+function scorePill(s){
+  if(s===null||s===undefined)return`<span class="score-pill score-na">—</span>`;
+  return`<span class="score-pill ${scoreClass(s)}">${s}</span>`;
+}
+
+// ── DATA ─────────────────────────────────────────────
+function load(){try{return JSON.parse(localStorage.getItem('fit_v2_leads')||'[]')}catch{return[]}}
+function save(d){localStorage.setItem('fit_v2_leads',JSON.stringify(d))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+
+let leads=load();
+let activeTab='dashboard';
+let search='',stageFilter='',tierFilter='',ownerFilter='',sectorFilter='';
+let showModal=false,editId=null,showImport=leads.length===0;
+
+// ── HELPERS ───────────────────────────────────────────
+function formatDate(d){if(!d)return'';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});}catch{return d;}}
+function isOverdue(d){if(!d)return false;try{return new Date(d)<new Date();}catch{return false;}}
+function daysSince(d){if(!d)return null;return Math.floor((new Date()-new Date(d))/(1000*60*60*24));}
+function isStale(lead){
+  if(!['Contacted','In Conversation'].includes(lead.stage))return false;
+  const d=lead.lastcontact||lead.firstcontact;
+  return d&&daysSince(d)>30;
+}
+
+function filtered(){
+  return leads.filter(l=>{
+    const q=search.toLowerCase();
+    const matchQ=!q||(l.name||'').toLowerCase().includes(q)||(l.company||'').toLowerCase().includes(q)||(l.sector||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q);
+    const matchStage=!stageFilter||l.stage===stageFilter;
+    const matchTier=!tierFilter||getTier(l)===tierFilter;
+    const matchOwner=!ownerFilter||l.owner===ownerFilter;
+    const matchSector=!sectorFilter||((l.sector||'').toLowerCase().includes(sectorFilter.toLowerCase()));
+    return matchQ&&matchStage&&matchTier&&matchOwner&&matchSector;
+  });
+}
+
+function updateField(id,field,val){
+  leads=leads.map(l=>l.id===id?{...l,[field]:val}:l);
+  save(leads);
+  updateLeadCount();
+  if(['stage','owner','tier'].includes(field))renderTab();
+}
+
+function updateLeadCount(){
+  const el=document.getElementById('lead-count');
+  if(el)el.textContent=leads.length.toLocaleString()+' targets loaded';
+}
+
+// ── PARSE CSV ────────────────────────────────────────
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/);
+  if(lines.length<2)return[];
+  const rawHeaders=splitCSVLine(lines[0]).map(h=>h.trim().replace(/^"|"$/g,''));
+
+  // Build a header index map for fast lookup
+  const hi={};
+  rawHeaders.forEach((h,i)=>{ hi[h]=i; });
+
+  function get(row, ...keys){
+    for(const k of keys){
+      if(hi[k]!==undefined){
+        const v=(row[hi[k]]||'').trim().replace(/^"|"$/g,'');
+        if(v)return v;
+      }
+    }
+    return '';
+  }
+
+  // Detect if this is an Apollo export
+  const isApollo=hi['First Name']!==undefined||hi['Apollo Contact Id']!==undefined;
+
+  return lines.slice(1).map(line=>{
+    const vals=splitCSVLine(line);
+    const obj={
+      id:uid(),stage:'Identified',notes:'',value:'',owner:'Richard',
+      provider:'Unknown',techstack:'Unknown',location:'Unknown',
+      revband:'Unknown',orderband:'Unknown',sector:'',jobtitle:'',
+      linkedin:'',nextaction:'',firstcontact:'',lastcontact:'',
+      channel:'',responsestatus:'',growthsignals:'',painindicators:'',
+      website:'',phone:'',email:'',name:'',company:''
+    };
+
+    if(isApollo){
+      // ── Apollo.io column mapping ──
+      const firstName=get(vals,'First Name');
+      const lastName=get(vals,'Last Name');
+      obj.name=[firstName,lastName].filter(Boolean).join(' ');
+      obj.company=get(vals,'Company Name','Company Name for Emails');
+      obj.email=get(vals,'Email','Secondary Email','Tertiary Email');
+      obj.jobtitle=get(vals,'Title');
+      obj.phone=get(vals,'Company Phone');
+      obj.website=get(vals,'Website');
+      obj.linkedin=get(vals,'Person Linkedin Url');
+      obj.sector=get(vals,'Industry');
+      obj.location=get(vals,'Country','Company Country')||'Unknown';
+      obj.lastcontact=get(vals,'Last Contacted')?get(vals,'Last Contacted').slice(0,10):'';
+      // Map annual revenue to rev band
+      const rev=parseFloat(get(vals,'Annual Revenue').replace(/[^0-9.]/g,''))||0;
+      if(rev>50000000)obj.revband='£50m+';
+      else if(rev>25000000)obj.revband='£25m–£50m';
+      else if(rev>10000000)obj.revband='£10m–£25m';
+      else if(rev>5000000)obj.revband='£5m–£10m';
+      else if(rev>1000000)obj.revband='£1m–£5m';
+      else if(rev>0)obj.revband='Under £1m';
+      else obj.revband='Unknown';
+      // Tech stack — extract first recognisable platform
+      const techs=get(vals,'Technologies');
+      if(/shopify plus/i.test(techs))obj.techstack='Shopify Plus';
+      else if(/shopify/i.test(techs))obj.techstack='Shopify';
+      else if(/woo\s?commerce/i.test(techs))obj.techstack='WooCommerce';
+      else if(/magento/i.test(techs))obj.techstack='Magento';
+      else if(/bigcommerce/i.test(techs))obj.techstack='BigCommerce';
+      else if(/wix/i.test(techs))obj.techstack='Wix';
+      else if(/squarespace/i.test(techs))obj.techstack='Squarespace';
+      else if(techs)obj.techstack='Other';
+      // Growth signals from keywords
+      obj.growthsignals=get(vals,'Keywords','Primary Intent Topic').slice(0,200);
+      // Employees as proxy for company size
+      const emp=parseInt(get(vals,'# Employees'))||0;
+      if(emp>500)obj.orderband='25k–50k/mo';
+      else if(emp>200)obj.orderband='10k–25k/mo';
+      else if(emp>50)obj.orderband='5k–10k/mo';
+      else if(emp>10)obj.orderband='1k–5k/mo';
+      else if(emp>0)obj.orderband='Under 1k/mo';
+      // Stage mapping
+      const apolloStage=get(vals,'Stage').toLowerCase();
+      if(apolloStage.includes('qualified'))obj.stage='Researched';
+      else if(apolloStage.includes('contact'))obj.stage='Contacted';
+      else obj.stage='Identified';
+      // Owner
+      const contactOwner=get(vals,'Contact Owner').toLowerCase();
+      if(contactOwner.includes('trent'))obj.owner='Trent';
+      else obj.owner='Richard';
+    } else {
+      // ── Generic column mapping (original behaviour) ──
+      const headers=rawHeaders.map(h=>h.toLowerCase().replace(/[^a-z0-9]/g,'_'));
+      headers.forEach((h,i)=>{
+        const v=(vals[i]||'').trim().replace(/^"|"$/g,'');
+        if(h.includes('name'))obj.name=v;
+        else if(h.includes('company')||h.includes('brand'))obj.company=v;
+        else if(h.includes('website'))obj.website=v;
+        else if(h.includes('email'))obj.email=v;
+        else if(h.includes('phone'))obj.phone=v;
+        else if(h.includes('sector')||h.includes('category')||h.includes('industry'))obj.sector=v;
+        else if(h.includes('tech')||h.includes('platform'))obj.techstack=v;
+        else if(h.includes('location')||h.includes('country'))obj.location=v;
+        else if(h.includes('revenue'))obj.revband=v;
+        else if(h.includes('order'))obj.orderband=v;
+        else if(h.includes('provider')||h.includes('3pl'))obj.provider=v;
+        else if(h.includes('note'))obj.notes=v;
+        else if(h.includes('value'))obj.value=v;
+        else if(h.includes('linkedin'))obj.linkedin=v;
+        else if(h.includes('title')||h.includes('job'))obj.jobtitle=v;
+        else if(h.includes('growth'))obj.growthsignals=v;
+        else if(h.includes('pain'))obj.painindicators=v;
+      });
+    }
+
+    if(!obj.company&&!obj.name)return null;
+    if(!obj.company)obj.company=obj.name;
+    if(!obj.name)obj.name=obj.company;
+    return obj;
+  }).filter(Boolean);
+}
+
+function splitCSVLine(line){
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=line[i];}
+  }
+  result.push(cur);return result;
+}
+
+// ── TAB SYSTEM ────────────────────────────────────────
+function setTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>{if(t.textContent.toLowerCase().replace(/\s+/g,'-')===tab||t.getAttribute('onclick').includes(`'${tab}'`))t.classList.add('active');});
+  renderTab();
+}
+
+function renderTab(){
+  updateLeadCount();
+  const el=document.getElementById('tab-content');
+  if(!el)return;
+  if(activeTab==='dashboard')el.innerHTML=renderDashboard();
+  else if(activeTab==='pipeline')el.innerHTML=renderPipeline();
+  else if(activeTab==='tier-a')el.innerHTML=renderTable(leads.filter(l=>getTier(l)==='A').sort((a,b)=>calcPriorityScore(b)-calcPriorityScore(a)),'Tier A — Immediate Targets',false);
+  else if(activeTab==='outreach')el.innerHTML=renderOutreach();
+  else el.innerHTML=renderTable(null,'All Targets',true);
+  renderModal();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+function renderDashboard(){
+  const tierA=leads.filter(l=>getTier(l)==='A');
+  const tierB=leads.filter(l=>getTier(l)==='B');
+  const tierC=leads.filter(l=>getTier(l)==='C');
+  const pipeline=leads.filter(l=>!['Won','Lost'].includes(l.stage));
+  const won=leads.filter(l=>l.stage==='Won');
+  const stale=leads.filter(isStale);
+  const totalVal=leads.reduce((s,l)=>s+(parseFloat(l.value)||0),0);
+  const overdue=leads.filter(l=>l.nextaction&&isOverdue(l.nextaction)&&!['Won','Lost'].includes(l.stage));
+
+  const top20=leads.filter(l=>!['Won','Lost'].includes(l.stage)).sort((a,b)=>calcPriorityScore(b)-calcPriorityScore(a)).slice(0,20);
+
+  let html=``;
+
+  // Import if empty
+  if(leads.length===0){
+    html+=`<div class="upload-area" onclick="document.getElementById('csv-input').click()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#AEC3C4" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p>Click to import your CSV into FIT</p>
+      <p class="small">Columns auto-detected — company, sector, website, email, provider, revenue, orders, tech stack and more</p>
+    </div>
+    <input type="file" id="csv-input" accept=".csv" onchange="handleCSV(this)">`;
+    return html;
+  }
+
+  html+=`<div class="dash-grid">
+    <div class="dash-card"><div class="dash-label">Total targets</div><div class="dash-value">${leads.length.toLocaleString()}</div><div class="dash-sub">${pipeline.length} active in pipeline</div></div>
+    <div class="dash-card"><div class="dash-label">Tier A</div><div class="dash-value tier-a">${tierA.length}</div><div class="dash-sub">${tierB.length} Tier B · ${tierC.length} Tier C</div></div>
+    <div class="dash-card"><div class="dash-label">Won</div><div class="dash-value" style="color:#27500A">${won.length}</div><div class="dash-sub">${totalVal>0?'£'+totalVal.toLocaleString()+' total value':''}</div></div>
+    <div class="dash-card"><div class="dash-label">Needs attention</div><div class="dash-value" style="color:#841B2D">${overdue.length+stale.length}</div><div class="dash-sub">${overdue.length} overdue · ${stale.length} stale</div></div>
+  </div>`;
+
+  // Pipeline summary
+  html+=`<div class="pipeline-wrap">`;
+  PIPELINE_STAGES.forEach(s=>{
+    const cnt=leads.filter(l=>l.stage===s).length;
+    const val=leads.filter(l=>l.stage===s).reduce((t,l)=>t+(parseFloat(l.value)||0),0);
+    html+=`<div class="pipe-col"><div class="pipe-col-label">${s}</div><div class="pipe-col-count">${cnt}</div>${val>0?`<div class="pipe-col-val">£${val.toLocaleString()}</div>`:''}</div>`;
+  });
+  html+=`</div>`;
+
+  // Top 20
+  html+=`<div class="top20-wrap">
+    <div class="top20-header">Top 20 Priority Targets <span>Ranked by Priority Score · excludes Won/Lost</span></div>
+    <table><thead><tr>
+      <th>#</th><th>Company</th><th>Sector</th><th>Tier</th>
+      <th>Fit</th><th>Urgency</th><th>Value</th><th>Priority</th>
+      <th>Stage</th><th>Provider</th><th>Owner</th><th>Next Action</th>
+    </tr></thead><tbody>`;
+
+  top20.forEach((l,i)=>{
+    const tier=getTier(l);
+    const fit=calcFitScore(l),urg=calcUrgencyScore(l),val=calcValueScore(l),pri=calcPriorityScore(l);
+    html+=`<tr>
+      <td style="color:#AEC3C4;font-size:11px">${i+1}</td>
+      <td><strong style="font-size:12px">${l.company||l.name||'—'}</strong>${l.website?`<br><a href="${l.website.startsWith('http')?l.website:'https://'+l.website}" target="_blank" style="font-size:10px;color:#F34723;text-decoration:none">${l.website}</a>`:''}</td>
+      <td style="font-size:11px;color:#AEC3C4">${l.sector||'—'}</td>
+      <td><span class="badge badge-${tier.toLowerCase()}">${tier}</span></td>
+      <td>${scorePill(fit)}</td>
+      <td>${scorePill(urg)}</td>
+      <td>${scorePill(val)}</td>
+      <td>${scorePill(pri)}</td>
+      <td><span class="badge badge-stage ${STAGE_CLASS[l.stage]||''}">${l.stage}</span></td>
+      <td style="font-size:11px;color:#AEC3C4">${l.provider&&l.provider!=='Unknown'?l.provider:'—'}</td>
+      <td style="font-size:11px;font-weight:500;color:${l.owner==='Trent'?'#841B2D':'#0A2538'}">${l.owner||'Richard'}</td>
+      <td style="font-size:11px;color:${isOverdue(l.nextaction)?'#841B2D':'#AEC3C4'}">${formatDate(l.nextaction)||'—'}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody></table></div>`;
+
+  // Import CSV button at bottom of dashboard
+  html+=`<div style="margin-top:1rem;display:flex;gap:8px">
+    <button class="btn" onclick="document.getElementById('csv-input-dash').click()">Import CSV</button>
+    <button class="btn btn-primary" onclick="openAdd()">+ Add target</button>
+    <input type="file" id="csv-input-dash" accept=".csv" style="display:none" onchange="handleCSV(this)">
+  </div>`;
+
+  return html;
+}
+
+// ── PIPELINE VIEW ─────────────────────────────────────
+function renderPipeline(){
+  let html=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">`;
+  PIPELINE_STAGES.forEach(stage=>{
+    const stageleads=leads.filter(l=>l.stage===stage).sort((a,b)=>calcPriorityScore(b)-calcPriorityScore(a));
+    html+=`<div style="background:#fff;border:0.5px solid #EBE1C9;border-radius:10px;padding:.75rem;min-height:200px">
+      <div style="font-size:10px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;justify-content:space-between">
+        <span>${stage}</span><span>${stageleads.length}</span>
+      </div>`;
+    stageleads.slice(0,10).forEach(l=>{
+      const tier=getTier(l);
+      html+=`<div style="background:#F6F4F1;border-radius:6px;padding:6px 8px;margin-bottom:6px;cursor:pointer" onclick="openEdit('${l.id}')">
+        <div style="font-size:12px;font-weight:500;color:#0A2538;margin-bottom:2px">${l.company||l.name||'—'}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span class="badge badge-${tier.toLowerCase()}">${tier}</span>
+          <span style="font-size:10px;color:#AEC3C4">${l.sector||''}</span>
+        </div>
+      </div>`;
+    });
+    if(stageleads.length>10)html+=`<div style="font-size:10px;color:#AEC3C4;text-align:center;padding:4px">+${stageleads.length-10} more</div>`;
+    html+=`</div>`;
+  });
+  html+=`</div>
+  <div style="margin-top:1rem;display:flex;gap:8px">
+    <button class="btn btn-primary" onclick="openAdd()">+ Add target</button>
+  </div>`;
+  return html;
+}
+
+// ── OUTREACH VIEW ────────────────────────────────────
+function renderOutreach(){
+  const contacted=leads.filter(l=>['Contacted','In Conversation','Proposal Sent'].includes(l.stage));
+  const stale=contacted.filter(isStale);
+  const overdue=leads.filter(l=>l.nextaction&&isOverdue(l.nextaction)&&!['Won','Lost'].includes(l.stage));
+  const noContact=leads.filter(l=>l.stage==='Identified'||l.stage==='Researched');
+
+  let html=`<div class="dash-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem">
+    <div class="dash-card"><div class="dash-label">In outreach</div><div class="dash-value">${contacted.length}</div><div class="dash-sub">Contacted or in conversation</div></div>
+    <div class="dash-card"><div class="dash-label">Stale (30+ days)</div><div class="dash-value" style="color:#841B2D">${stale.length}</div><div class="dash-sub">No contact in over a month</div></div>
+    <div class="dash-card"><div class="dash-label">Overdue actions</div><div class="dash-value" style="color:#841B2D">${overdue.length}</div><div class="dash-sub">Next action date passed</div></div>
+  </div>`;
+
+  // Stale leads
+  if(stale.length>0){
+    html+=`<div class="top20-wrap" style="margin-bottom:1rem">
+      <div class="top20-header" style="color:#841B2D">Stale Leads — Follow Up Now <span>${stale.length} leads with no contact in 30+ days</span></div>
+      ${outreachTable(stale)}
+    </div>`;
+  }
+
+  // Overdue
+  if(overdue.length>0){
+    html+=`<div class="top20-wrap" style="margin-bottom:1rem">
+      <div class="top20-header" style="color:#841B2D">Overdue Actions <span>Next action date has passed</span></div>
+      ${outreachTable(overdue)}
+    </div>`;
+  }
+
+  // Not yet contacted
+  html+=`<div class="top20-wrap">
+    <div class="top20-header">Not Yet Contacted <span>${noContact.length} identified / researched leads</span></div>
+    ${outreachTable(noContact.sort((a,b)=>calcPriorityScore(b)-calcPriorityScore(a)).slice(0,30))}
+  </div>`;
+
+  return html;
+}
+
+function outreachTable(rows){
+  let html=`<table><thead><tr>
+    <th>Company</th><th>Sector</th><th>Tier</th><th>Priority</th><th>Stage</th>
+    <th>First Contact</th><th>Last Contact</th><th>Channel</th><th>Response</th><th>Owner</th><th>Next Action</th>
+  </tr></thead><tbody>`;
+  rows.forEach(l=>{
+    const tier=getTier(l);
+    const ds=daysSince(l.lastcontact||l.firstcontact);
+    html+=`<tr style="cursor:pointer" onclick="openEdit('${l.id}')">
+      <td><strong style="font-size:12px">${l.company||l.name||'—'}</strong></td>
+      <td style="font-size:11px;color:#AEC3C4">${l.sector||'—'}</td>
+      <td><span class="badge badge-${tier.toLowerCase()}">${tier}</span></td>
+      <td>${scorePill(calcPriorityScore(l))}</td>
+      <td><span class="badge badge-stage ${STAGE_CLASS[l.stage]||''}">${l.stage}</span></td>
+      <td style="font-size:11px;color:#AEC3C4">${formatDate(l.firstcontact)||'—'}</td>
+      <td style="font-size:11px;color:${ds&&ds>30?'#841B2D':'#AEC3C4'}">${formatDate(l.lastcontact)||'—'}${ds&&ds>30?` <span class="stale-flag">(${ds}d ago)</span>`:''}</td>
+      <td style="font-size:11px;color:#AEC3C4">${l.channel||'—'}</td>
+      <td style="font-size:11px;color:#AEC3C4">${l.responsestatus||'—'}</td>
+      <td style="font-size:11px;font-weight:500;color:${l.owner==='Trent'?'#841B2D':'#0A2538'}">${l.owner||'Richard'}</td>
+      <td style="font-size:11px;color:${isOverdue(l.nextaction)?'#841B2D':'#AEC3C4'}">${formatDate(l.nextaction)||'—'}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  return html;
+}
+
+// ── MAIN TABLE ────────────────────────────────────────
+function renderTable(rows,title,showControls){
+  const fl=rows||filtered();
+  let html='';
+
+  if(showControls){
+    html+=`<div class="controls">
+      <input type="text" class="search-input" placeholder="Search company, sector, email…" value="${search.replace(/"/g,'&quot;')}" oninput="search=this.value;renderTab()">
+      <select class="filter-sel" onchange="stageFilter=this.value;renderTab()">
+        <option value="">All stages</option>
+        ${PIPELINE_STAGES.map(s=>`<option value="${s}"${stageFilter===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      <select class="filter-sel" onchange="tierFilter=this.value;renderTab()">
+        <option value="">All tiers</option>
+        <option value="A"${tierFilter==='A'?' selected':''}>Tier A</option>
+        <option value="B"${tierFilter==='B'?' selected':''}>Tier B</option>
+        <option value="C"${tierFilter==='C'?' selected':''}>Tier C</option>
+      </select>
+      <select class="filter-sel" onchange="ownerFilter=this.value;renderTab()">
+        <option value="">All owners</option>
+        ${OWNERS.map(o=>`<option value="${o}"${ownerFilter===o?' selected':''}>${o}</option>`).join('')}
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="openAdd()">+ Add target</button>
+      <button class="btn btn-sm" onclick="document.getElementById('csv-input-table').click()">Import CSV</button>
+      <input type="file" id="csv-input-table" accept=".csv" style="display:none" onchange="handleCSV(this)">
+    </div>`;
+  }
+
+  if(title)html+=`<div style="font-size:11px;font-weight:600;color:#AEC3C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">${title} <span style="font-weight:400">(${fl.length})</span></div>`;
+
+  html+=`<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Company</th><th>Website</th><th>Sector</th>
+      <th>Tier</th><th>Fit</th><th>Urgency</th><th>Value</th><th>Priority</th>
+      <th>Stage</th><th>Provider</th><th>Tech</th><th>Location</th>
+      <th>Rev Band</th><th>Orders</th><th>Owner</th>
+      <th>First Contact</th><th>Last Contact</th><th>Channel</th><th>Response</th>
+      <th>Next Action</th><th>Growth Signals</th><th>Notes</th><th></th>
+    </tr></thead><tbody>`;
+
+  if(fl.length===0){
+    html+=`<tr><td colspan="23"><div class="empty">No targets match your filter</div></td></tr>`;
+  } else {
+    fl.forEach(l=>{
+      const tier=getTier(l);
+      const fit=calcFitScore(l),urg=calcUrgencyScore(l),val=calcValueScore(l),pri=calcPriorityScore(l);
+      const staleFlag=isStale(l)?'<span class="stale-flag">stale</span>':'';
+      html+=`<tr>
+        <td><input class="ii" value="${(l.company||l.name||'').replace(/"/g,'&quot;')}" placeholder="Company" onchange="updateField('${l.id}','company',this.value)"></td>
+        <td><input class="ii ii-muted" style="font-size:11px" value="${(l.website||'').replace(/"/g,'&quot;')}" placeholder="website.com" onchange="updateField('${l.id}','website',this.value)"></td>
+        <td><input class="ii ii-muted" style="font-size:11px" value="${(l.sector||'').replace(/"/g,'&quot;')}" placeholder="Sector" onchange="updateField('${l.id}','sector',this.value)"></td>
+        <td><span class="badge badge-${tier.toLowerCase()}">${tier}</span></td>
+        <td>${scorePill(fit)}</td>
+        <td>${scorePill(urg)}</td>
+        <td>${scorePill(val)}</td>
+        <td>${scorePill(pri)}</td>
+        <td><select class="ii-sel badge-stage ${STAGE_CLASS[l.stage]||''}" style="font-size:10px;font-weight:500;padding:2px 6px;border-radius:999px" onchange="updateField('${l.id}','stage',this.value)">${PIPELINE_STAGES.map(s=>`<option value="${s}"${l.stage===s?' selected':''}>${s}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','provider',this.value)">${UK_3PLS.map(p=>`<option value="${p}"${(l.provider||'Unknown')===p?' selected':''}>${p}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','techstack',this.value)">${TECH_STACKS.map(t=>`<option value="${t}"${(l.techstack||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','location',this.value)">${LOCATIONS.map(t=>`<option value="${t}"${(l.location||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','revband',this.value)">${REV_BANDS.map(t=>`<option value="${t}"${(l.revband||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','orderband',this.value)">${ORDER_BANDS.map(t=>`<option value="${t}"${(l.orderband||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></td>
+        <td><select class="ii-sel" style="font-size:11px;font-weight:500;color:${l.owner==='Trent'?'#841B2D':'#0A2538'}" onchange="updateField('${l.id}','owner',this.value)">${OWNERS.map(o=>`<option value="${o}"${(l.owner||'Richard')===o?' selected':''}>${o}</option>`).join('')}</select></td>
+        <td><input class="ii-date ii-muted" type="date" value="${l.firstcontact||''}" onchange="updateField('${l.id}','firstcontact',this.value)"></td>
+        <td><input class="ii-date ii-muted" type="date" value="${l.lastcontact||''}" onchange="updateField('${l.id}','lastcontact',this.value)">${staleFlag}</td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','channel',this.value)"><option value="">—</option>${CHANNELS.map(c=>`<option value="${c}"${l.channel===c?' selected':''}>${c}</option>`).join('')}</select></td>
+        <td><select class="ii-sel ii-muted" style="font-size:11px" onchange="updateField('${l.id}','responsestatus',this.value)"><option value="">—</option>${RESPONSE_STATUSES.map(r=>`<option value="${r}"${l.responsestatus===r?' selected':''}>${r}</option>`).join('')}</select></td>
+        <td><input class="ii-date" style="color:${isOverdue(l.nextaction)?'#841B2D':'#AEC3C4'}" type="date" value="${l.nextaction||''}" onchange="updateField('${l.id}','nextaction',this.value)"></td>
+        <td><input class="ii ii-muted" style="font-size:11px" value="${(l.growthsignals||'').replace(/"/g,'&quot;')}" placeholder="Growth signals…" onchange="updateField('${l.id}','growthsignals',this.value)"></td>
+        <td><input class="ii ii-muted" style="font-size:11px" value="${(l.notes||'').replace(/"/g,'&quot;')}" placeholder="Notes…" onchange="updateField('${l.id}','notes',this.value)"></td>
+        <td><button class="action-btn" onclick="deleteLead('${l.id}')" style="background:none;border:none;cursor:pointer;color:#EBE1C9;font-size:12px;padding:2px 4px" onmouseover="this.style.color='#841B2D'" onmouseout="this.style.color='#EBE1C9'">✕</button></td>
+      </tr>`;
+    });
+  }
+
+  html+=`</tbody></table></div>`;
+  return html;
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openAdd(){editId=null;showModal=true;renderTab();setTimeout(()=>document.getElementById('f-company')?.focus(),50);}
+function openEdit(id){editId=id;showModal=true;renderTab();}
+
+function renderModal(){
+  let existing=document.querySelector('.modal-bg');
+  if(existing)existing.remove();
+  if(!showModal)return;
+  const e=editId?leads.find(l=>l.id===editId):null;
+  const div=document.createElement('div');
+  div.className='modal-bg';
+  div.onclick=function(ev){if(ev.target===div){showModal=false;editId=null;renderTab();}};
+  div.innerHTML=`<div class="modal">
+    <h3>${e?'Edit target':'Add target'}</h3>
+    <div class="modal-section">Core details</div>
+    <div class="form-grid">
+      <div class="form-row"><label>Company name</label><input type="text" id="f-company" value="${(e?.company||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Website</label><input type="text" id="f-website" value="${(e?.website||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Contact name</label><input type="text" id="f-name" value="${(e?.name||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Job title</label><input type="text" id="f-jobtitle" value="${(e?.jobtitle||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Email</label><input type="email" id="f-email" value="${(e?.email||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Phone</label><input type="text" id="f-phone" value="${(e?.phone||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>LinkedIn</label><input type="text" id="f-linkedin" value="${(e?.linkedin||'').replace(/"/g,'&quot;')}"></div>
+      <div class="form-row"><label>Sector / category</label><input type="text" id="f-sector" value="${(e?.sector||'').replace(/"/g,'&quot;')}"></div>
+    </div>
+    <div class="modal-section">Commercial intelligence</div>
+    <div class="form-grid">
+      <div class="form-row"><label>Current 3PL provider</label><select id="f-provider">${UK_3PLS.map(p=>`<option value="${p}"${(e?.provider||'Unknown')===p?' selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Tech stack</label><select id="f-techstack">${TECH_STACKS.map(t=>`<option value="${t}"${(e?.techstack||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Location</label><select id="f-location">${LOCATIONS.map(t=>`<option value="${t}"${(e?.location||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Revenue band</label><select id="f-revband">${REV_BANDS.map(t=>`<option value="${t}"${(e?.revband||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Monthly orders</label><select id="f-orderband">${ORDER_BANDS.map(t=>`<option value="${t}"${(e?.orderband||'Unknown')===t?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Deal value (£)</label><input type="number" id="f-value" value="${e?.value||''}"></div>
+      <div class="form-row full"><label>Growth signals</label><textarea id="f-growthsignals">${e?.growthsignals||''}</textarea></div>
+      <div class="form-row full"><label>Fulfilment pain indicators</label><textarea id="f-painindicators">${e?.painindicators||''}</textarea></div>
+    </div>
+    <div class="modal-section">Pipeline & outreach</div>
+    <div class="form-grid">
+      <div class="form-row"><label>Stage</label><select id="f-stage">${PIPELINE_STAGES.map(s=>`<option value="${s}"${(e?.stage||'Identified')===s?' selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Owner</label><select id="f-owner">${OWNERS.map(o=>`<option value="${o}"${(e?.owner||'Richard')===o?' selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="form-row"><label>First contact date</label><input type="date" id="f-firstcontact" value="${e?.firstcontact||''}"></div>
+      <div class="form-row"><label>Last contact date</label><input type="date" id="f-lastcontact" value="${e?.lastcontact||''}"></div>
+      <div class="form-row"><label>Channel</label><select id="f-channel"><option value="">—</option>${CHANNELS.map(c=>`<option value="${c}"${e?.channel===c?' selected':''}>${c}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Response status</label><select id="f-responsestatus"><option value="">—</option>${RESPONSE_STATUSES.map(r=>`<option value="${r}"${e?.responsestatus===r?' selected':''}>${r}</option>`).join('')}</select></div>
+      <div class="form-row"><label>Next action date</label><input type="date" id="f-nextaction" value="${e?.nextaction||''}"></div>
+      <div class="form-row full"><label>Notes</label><textarea id="f-notes">${e?.notes||''}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      ${e?`<button class="btn btn-danger btn-sm" onclick="deleteLead('${e.id}')">Delete</button>`:''}
+      <button class="btn" onclick="showModal=false;editId=null;renderTab()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLead()">Save target</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+}
+
+function saveLead(){
+  const company=document.getElementById('f-company').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  if(!company&&!name){alert('Company or contact name is required');return;}
+  const rec={
+    id:editId||uid(),
+    company,name,
+    website:document.getElementById('f-website').value.trim(),
+    jobtitle:document.getElementById('f-jobtitle').value.trim(),
+    email:document.getElementById('f-email').value.trim(),
+    phone:document.getElementById('f-phone')?.value.trim()||'',
+    linkedin:document.getElementById('f-linkedin').value.trim(),
+    sector:document.getElementById('f-sector').value.trim(),
+    provider:document.getElementById('f-provider').value,
+    techstack:document.getElementById('f-techstack').value,
+    location:document.getElementById('f-location').value,
+    revband:document.getElementById('f-revband').value,
+    orderband:document.getElementById('f-orderband').value,
+    value:document.getElementById('f-value').value,
+    growthsignals:document.getElementById('f-growthsignals').value.trim(),
+    painindicators:document.getElementById('f-painindicators').value.trim(),
+    stage:document.getElementById('f-stage').value,
+    owner:document.getElementById('f-owner').value,
+    firstcontact:document.getElementById('f-firstcontact').value,
+    lastcontact:document.getElementById('f-lastcontact').value,
+    channel:document.getElementById('f-channel').value,
+    responsestatus:document.getElementById('f-responsestatus').value,
+    nextaction:document.getElementById('f-nextaction').value,
+    notes:document.getElementById('f-notes').value.trim()
+  };
+  if(editId){leads=leads.map(l=>l.id===editId?rec:l);}else{leads=[...leads,rec];}
+  save(leads);showModal=false;editId=null;renderTab();
+}
+
+window.deleteLead=function(id){
+  if(!confirm('Remove this target from FIT?'))return;
+  leads=leads.filter(l=>l.id!==id);
+  save(leads);showModal=false;editId=null;renderTab();
+};
+
+window.handleCSV=function(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const parsed=parseCSV(e.target.result);
+    if(parsed.length===0){alert('No targets found. Check the CSV has a header row.');return;}
+    leads=[...leads,...parsed];save(leads);showImport=false;
+    alert(`${parsed.length.toLocaleString()} targets imported successfully.`);
+    renderTab();
+  };
+  reader.readAsText(file);
+};
+
+window.openAdd=openAdd;
+window.openEdit=openEdit;
+window.updateField=updateField;
+window.setTab=setTab;
+window.saveLead=saveLead;
+
+if(sessionStorage.getItem('crm_auth')==='1')renderTab();
+</script>
+</body>
+</html>
